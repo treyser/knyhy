@@ -9,14 +9,37 @@ const bookId = new URLSearchParams(location.search).get("book");
 let book = null;
 let spread = 0;   // номер розвороту: сторінки 2n і 2n+1
 
-OBR.onReady(init);
+// Поповер міг відкритися поза кімнатою або SDK не піднявся —
+// краще написати про це на сторінці, ніж лишити порожнечу.
+const failsafe = setTimeout(() => {
+  if (!book) say("Owlbear не відповів. Спробуй перевідкрити книгу.");
+}, 4000);
+
+if (!OBR.isAvailable) {
+  say("Сторінку відкрито поза Owlbear.");
+} else {
+  OBR.onReady(() => init().catch((err) => {
+    say("Збій: " + (err?.message ?? err));
+    console.error(err);
+  }));
+}
+
+function say(text) {
+  clearTimeout(failsafe);
+  $("title").style.display = "";
+  $("title").textContent = text;
+  $("textLeft").textContent = "";
+  $("textRight").textContent = "";
+}
 
 async function init() {
+  clearTimeout(failsafe);
+
   const meta = await OBR.room.getMetadata();
   book = (meta[BOOKS] ?? {})[bookId];
 
   if (!book) {
-    $("title").textContent = "Книги не знайдено";
+    say(bookId ? "Книги не знайдено" : "Книгу не вказано");
     return;
   }
 

@@ -1,0 +1,16 @@
+{
+  "name": "Книги",
+  "version": "0.1.0",
+  "manifest_version": 1,
+  "description": "Записники й книги, які гравці знаходять на мапі й гортають сторінками.",
+  "author": "Nikita",
+  "icon": "https://treyser.github.io/knyhy/icon.svg",
+  "background_url": "https://treyser.github.io/knyhy/background.html",
+  "action": {
+    "title": "Книги",
+    "icon": "https://treyser.github.io/knyhy/icon.svg",
+    "popover": "https://treyser.github.io/knyhy/index.html",
+    "width": 520,
+    "height": 640
+  }
+}

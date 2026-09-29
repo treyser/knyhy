@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Книги</title></head>
+<body>
+  <div id="gm">
+    <div class="row">
+      <select id="pick"></select>
+      <button type="button" id="add" title="Нова книга">+</button>
+    </div>
+
+    <div id="editor" hidden>
+      <div class="grid2" style="margin-top:10px">
+        <input id="title" placeholder="Назва книги" maxlength="60">
+        <select id="style"></select>
+      </div>
+
+      <div class="pagebar">
+        <button type="button" id="prev">‹</button>
+        <span id="counter">1 / 1</span>
+        <button type="button" id="next">›</button>
+        <button type="button" id="addPage" class="ghost">Додати сторінку</button>
+        <button type="button" id="delPage" class="ghost">Прибрати</button>
+      </div>
+
+      <textarea id="text" placeholder="Текст сторінки…"></textarea>
+
+      <div class="row" style="margin-top:8px">
+        <button type="button" id="save">Зберегти</button>
+        <button type="button" id="show" class="ghost">Показати всім</button>
+        <button type="button" id="del" class="ghost">Видалити книгу</button>
+      </div>
+    </div>
+
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div id="player" hidden class="hint">Книги пише Майстер. Знайдену книгу відкривають через ПКМ на предметі.</div>
+  <script type="module" src="/src/editor.js"></script>
+</body>
+</html>

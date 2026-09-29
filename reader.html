@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Книга</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pirata+One&display=swap" rel="stylesheet">
+</head>
+<body class="reader">
+  <div class="book" id="book">
+    <div class="board" id="board">
+      <div class="edges left"></div>
+      <div class="edges right"></div>
+
+      <div class="spread">
+        <div class="leaf left">
+          <div class="paper" id="paperLeft">
+            <div class="frame"></div>
+            <div class="rose-slot" id="roseLeft"></div>
+            <h1 id="title"></h1>
+            <div class="rule" id="ruleLeft"></div>
+            <div class="text" id="textLeft"></div>
+            <div class="folio" id="folioLeft"></div>
+          </div>
+        </div>
+
+        <div class="spine"><span></span></div>
+
+        <div class="leaf right">
+          <div class="paper" id="paperRight">
+            <div class="frame"></div>
+            <div class="rose-slot" id="roseRight"></div>
+            <div class="text" id="textRight"></div>
+            <div class="folio" id="folioRight"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ribbon"></div>
+      <div class="clasps" id="clasps"></div>
+    </div>
+
+    <button type="button" class="turn prev" id="prev" aria-label="Назад">‹</button>
+    <button type="button" class="turn next" id="next" aria-label="Далі">›</button>
+    <button type="button" class="close" id="close" aria-label="Закрити">×</button>
+  </div>
+  <script type="module" src="/src/reader.js"></script>
+</body>
+</html>

@@ -145,7 +145,13 @@ async function removeBook() {
 async function showAll() {
   if (!current) return;
   await save();
-  await OBR.broadcast.sendMessage(OPEN, { bookId: current.id }, { destination: "ALL" });
+  try {
+    await OBR.broadcast.sendMessage(OPEN, { bookId: current.id }, { destination: "ALL" });
+    $("hint").textContent = "Книгу відкрито всім";
+  } catch (err) {
+    $("hint").textContent = "Не вдалося надіслати: " + (err?.message ?? err);
+    console.error(err);
+  }
 }
 
 async function write() {

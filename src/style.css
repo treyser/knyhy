@@ -24,6 +24,19 @@ button.ghost{background:transparent}
 .pagebar button{padding:5px 10px}
 .hint{font-size:12px; color:var(--dim); margin-top:10px; line-height:1.45}
 
+.preview{
+  margin-top:8px; padding:12px 14px; border-radius:6px;
+  background:#efe3c8; color:#3a2c1c; min-height:52px; line-height:1.55;
+}
+.preview[data-font="print"]  {font-family:'EB Garamond', Georgia, serif; font-size:17px}
+.preview[data-font="quill"]  {font-family:'Bad Script', cursive; font-size:20px}
+.preview[data-font="hand"]   {font-family:'Caveat', cursive; font-size:24px}
+.preview[data-font="script"] {font-family:'Marck Script', cursive; font-size:22px}
+.preview[data-font="pencil"] {font-family:'Neucha', cursive; font-size:19px}
+.preview[data-font="charter"]{font-family:'Ruslan Display', serif; font-size:16px}
+.preview[data-font="solemn"] {font-family:'Yeseva One', Georgia, serif; font-size:16px}
+.preview[data-font="machine"]{font-family:'Ubuntu Sans Mono', monospace; font-size:15px}
+
 /* ---------- читалка ---------- */
 
 .reader{
@@ -262,4 +275,58 @@ button.ghost{background:transparent}
 @media(max-width:700px){
   .clasps{display:none}
   .edges{display:none}
+}
+
+/* ---------- шрифти книги ---------- */
+/* Кожен почерк має свій кегль і міжрядковий інтервал:
+   рукописні гарнітури дрібніші за накресленням і потребують більшого. */
+
+.book[data-font="print"]   .text{font-family:'EB Garamond', Georgia, serif}
+
+.book[data-font="quill"]   .text{
+  font-family:'Bad Script', cursive; font-size:clamp(17px, 1.55vw, 21px);
+  line-height:1.72; text-align:left; letter-spacing:.2px;
+}
+.book[data-font="hand"]    .text{
+  font-family:'Caveat', cursive; font-size:clamp(19px, 1.85vw, 25px);
+  line-height:1.5; text-align:left;
+}
+.book[data-font="script"]  .text{
+  font-family:'Marck Script', cursive; font-size:clamp(18px, 1.7vw, 23px);
+  line-height:1.7; text-align:left;
+}
+.book[data-font="pencil"]  .text{
+  font-family:'Neucha', cursive; font-size:clamp(16px, 1.5vw, 20px);
+  line-height:1.6; text-align:left; color:#4a4034;
+}
+.book[data-font="charter"] .text{
+  font-family:'Ruslan Display', serif; font-size:clamp(14px, 1.25vw, 17px);
+  line-height:1.9; text-align:left;
+}
+.book[data-font="solemn"]  .text{
+  font-family:'Yeseva One', Georgia, serif; font-size:clamp(14px, 1.3vw, 17px);
+  line-height:1.75;
+}
+.book[data-font="machine"] .text{
+  font-family:'Ubuntu Sans Mono', ui-monospace, monospace;
+  font-size:clamp(13px, 1.2vw, 16px); line-height:1.8;
+  text-align:left; letter-spacing:-.2px; color:#3f352a;
+}
+
+/* заголовок і буквиця підлаштовуються під рукописні почерки */
+.book[data-font="quill"] h1, .book[data-font="script"] h1{font-family:'Marck Script', cursive; font-size:clamp(26px,3.4vw,36px)}
+.book[data-font="hand"] h1{font-family:'Caveat', cursive; font-weight:600; font-size:clamp(28px,3.8vw,40px)}
+.book[data-font="pencil"] h1{font-family:'Neucha', cursive}
+.book[data-font="machine"] h1{font-family:'Ubuntu Sans Mono', monospace; font-size:clamp(20px,2.6vw,26px); letter-spacing:1px}
+.book[data-font="charter"] h1, .book[data-font="solemn"] h1{font-family:'Ruslan Display', serif; font-size:clamp(22px,3vw,30px)}
+
+/* у рукописних стилях буквиця в рамці виглядає чужорідно */
+.book[data-font="quill"] .dropcap,
+.book[data-font="hand"] .dropcap,
+.book[data-font="script"] .dropcap,
+.book[data-font="pencil"] .dropcap,
+.book[data-font="machine"] .dropcap{
+  background:none; border:none; box-shadow:none; color:inherit;
+  width:auto; height:auto; margin:0; float:none; display:inline;
+  font-family:inherit; font-size:inherit;
 }

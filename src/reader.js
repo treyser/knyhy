@@ -21,6 +21,7 @@ async function init() {
   }
 
   document.getElementById("book").dataset.style = book.style ?? "leather";
+  document.getElementById("book").dataset.font = book.font ?? "print";
   $("title").textContent = book.title ?? "";
   decorate();
 
@@ -39,6 +40,8 @@ async function init() {
     const fresh = (m[BOOKS] ?? {})[bookId];
     if (!fresh) return;
     book = fresh;
+    document.getElementById("book").dataset.font = book.font ?? "print";
+    document.getElementById("book").dataset.style = book.style ?? "leather";
     draw();
   });
 

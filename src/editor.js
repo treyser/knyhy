@@ -1,6 +1,6 @@
 import "./style.css";
 import OBR from "@owlbear-rodeo/sdk";
-import { BOOKS, OPEN, STYLES, emptyBook } from "./common.js";
+import { BOOKS, OPEN, STYLES, FONTS, emptyBook } from "./common.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -17,6 +17,7 @@ async function init() {
   if (!isGM) return;
 
   for (const s of STYLES) $("style").appendChild(new Option(s.name, s.key));
+  for (const f of FONTS) $("font").appendChild(new Option(f.name, f.key));
 
   books = await read();
   drawList();
@@ -34,12 +35,17 @@ async function init() {
   // текст запамʼятовуємо одразу в памʼяті, у кімнату — по кнопці
   $("text").addEventListener("input", () => {
     if (current) current.pages[page] = $("text").value;
+    preview();
   });
   $("title").addEventListener("input", () => {
     if (current) current.title = $("title").value;
   });
   $("style").addEventListener("change", () => {
     if (current) current.style = $("style").value;
+  });
+  $("font").addEventListener("change", () => {
+    if (current) current.font = $("font").value;
+    preview();
   });
 }
 
@@ -68,12 +74,22 @@ function select(id) {
   if (!current) return;
   $("title").value = current.title;
   $("style").value = current.style;
+  $("font").value = current.font ?? "print";
+  preview();
   draw();
+}
+
+// Показуємо, як виглядатиме почерк, не відкриваючи книгу
+function preview() {
+  const box = $("preview");
+  box.dataset.font = $("font").value;
+  box.textContent = current?.pages[page]?.slice(0, 90) || "Аа Бб Вв — так виглядатиме текст";
 }
 
 function draw() {
   $("counter").textContent = `${page + 1} / ${current.pages.length}`;
   $("text").value = current.pages[page] ?? "";
+  preview();
   $("prev").disabled = page === 0;
   $("next").disabled = page >= current.pages.length - 1;
   $("delPage").disabled = current.pages.length <= 1;

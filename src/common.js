@@ -12,9 +12,22 @@ export const STYLES = [
   { key: "letter", name: "Лист чи нотатка" },
 ];
 
+// Шрифти з підтримкою кирилиці. Ключ іде в клас на сторінці.
+export const FONTS = [
+  { key: "print",    name: "Друк (Garamond)",        sample: "Аа Бб Вв" },
+  { key: "quill",    name: "Пером (Bad Script)",      sample: "Аа Бб Вв" },
+  { key: "hand",     name: "Недбалий почерк (Caveat)", sample: "Аа Бб Вв" },
+  { key: "script",   name: "Курсив (Marck Script)",   sample: "Аа Бб Вв" },
+  { key: "pencil",   name: "Олівцем (Neucha)",        sample: "Аа Бб Вв" },
+  { key: "charter",  name: "Устав (Ruslan Display)",  sample: "Аа Бб Вв" },
+  { key: "solemn",   name: "Урочистий (Yeseva One)",  sample: "Аа Бб Вв" },
+  { key: "machine",  name: "Друкарська машинка",      sample: "Аа Бб Вв" },
+];
+
 export const emptyBook = () => ({
   id: "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
   title: "Нова книга",
   style: "leather",
+  font: "print",
   pages: [""],
 });

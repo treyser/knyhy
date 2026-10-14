@@ -1,6 +1,8 @@
 import "./style.css";
 import OBR from "@owlbear-rodeo/sdk";
-import { BOOKS, OPEN, STYLES, FONTS, emptyBook } from "./common.js";
+import { STYLES, FONTS, emptyBook } from "./common.js";
+import { getBooks, setBooks, migrate, wasMoved, clearMoved, sendBook, share, syncScene, pushToItems, forget, unforget } from "./store.js";
+import { openReader } from "./reader-open.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -19,8 +21,40 @@ async function init() {
   for (const s of STYLES) $("style").appendChild(new Option(s.name, s.key));
   for (const f of FONTS) $("font").appendChild(new Option(f.name, f.key));
 
+  await migrate().catch(() => {});
+  const found = await syncScene().catch(() => 0);
   books = await read();
   drawList();
+  const moved = wasMoved();
+  if (moved) {
+    $("hint").textContent = `Книги (${moved}) перенесено з кімнати в цей браузер — у кімнаті звільнилось місце. Зроби резервну копію кнопкою нижче.`;
+    clearMoved();
+  } else if (found) {
+    $("hint").textContent = `Повернуто з предметів на мапі книг: ${found}`;
+  }
+
+  $("backup").addEventListener("click", () => {
+    $("bk").hidden = !$("bk").hidden;
+    $("bktext").value = JSON.stringify(getBooks());
+  });
+  $("bkcopy").addEventListener("click", async () => {
+    $("bktext").select();
+    try { await navigator.clipboard.writeText($("bktext").value); $("bkcopy").textContent = "Скопійовано ✓"; }
+    catch { $("bkcopy").textContent = "Виділено — Ctrl+C"; }
+  });
+  $("bkload").addEventListener("click", async () => {
+    try {
+      const next = JSON.parse($("bktext").value);
+      if (!next || typeof next !== "object" || Object.values(next).some((b) => !b?.id || !Array.isArray(b.pages))) throw new Error();
+      books = { ...books, ...next };
+      for (const id of Object.keys(next)) unforget(id);
+      await write();
+      await syncScene().catch(() => {});
+      drawList();
+      $("bk").hidden = true;
+      $("hint").textContent = `Завантажено книг: ${Object.keys(next).length}`;
+    } catch { $("bkload").textContent = "Це не схоже на копію книг"; }
+  });
 
   $("pick").addEventListener("change", () => select($("pick").value));
   $("add").addEventListener("click", create);
@@ -50,8 +84,7 @@ async function init() {
 }
 
 async function read() {
-  const meta = await OBR.room.getMetadata();
-  return meta[BOOKS] ?? {};
+  return getBooks();
 }
 
 function drawList() {
@@ -118,6 +151,7 @@ function delPage() {
 async function create() {
   const book = emptyBook();
   books[book.id] = book;
+  unforget(book.id);
   await write();
   drawList();
   $("pick").value = book.id;
@@ -136,9 +170,12 @@ async function save() {
 async function removeBook() {
   if (!current) return;
   if (!confirm(`Видалити «${current.title}»? Скасувати буде неможливо.`)) return;
-  delete books[current.id];
+  const id = current.id;
+  delete books[id];
+  forget(id);
   current = null;
   await write();
+  await pushToItems(id).catch(() => {});   // зняти її з предметів цієї сцени
   drawList();
 }
 
@@ -146,7 +183,10 @@ async function showAll() {
   if (!current) return;
   await save();
   try {
-    await OBR.broadcast.sendMessage(OPEN, { bookId: current.id }, { destination: "ALL" });
+    share(current.id);
+    books = getBooks();
+    await sendBook(current.id, true);
+    await openReader(current.id);
     $("hint").textContent = "Книгу відкрито всім";
   } catch (err) {
     $("hint").textContent = "Не вдалося надіслати: " + (err?.message ?? err);
@@ -156,19 +196,20 @@ async function showAll() {
 
 async function write() {
   try {
-    await OBR.room.setMetadata({ [BOOKS]: books });
+    if (!setBooks(books)) throw new Error("браузер не дав зберегти");
+    if (current && books[current.id]) {
+      // прикріплені копії на предметах цієї сцени (в інших — коли їх відкриєш)
+      await pushToItems(current.id).catch(() => {});
+      // гравці, яким книгу вже показували, отримують нову версію
+      if (books[current.id].shared) await sendBook(current.id, false);
+    }
   } catch (err) {
     $("hint").textContent = "Не вдалося зберегти: " + (err?.message ?? err);
     console.error(err);
   }
 }
 
-// Метадані кімнати обмежені за розміром, тож показуємо, скільки вже зайнято
+// Межі кімнати книг більше не стосуються: робоча копія — у цьому браузері, прикріплені — на предметах
 function size() {
-  const bytes = new Blob([JSON.stringify(books)]).size;
-  const kb = (bytes / 1024).toFixed(1);
-  $("hint").textContent =
-    bytes > 12000
-      ? `Увага: книги важать ${kb} КБ. Наближаємось до межі метаданих кімнати.`
-      : `Книг: ${Object.keys(books).length} · ${kb} КБ`;
+  $("hint").textContent = `Книг: ${Object.keys(books).length} · зберігаються в цьому браузері, прикріплені — ще й на предметах мапи`;
 }

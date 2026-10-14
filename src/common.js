@@ -1,8 +1,11 @@
 export const ID = "com.nikita.books";
 
-export const BOOKS = `${ID}/books`;    // усі книги — метадані кімнати
+export const BOOKS = `${ID}/books`;    // старе місце книг у метаданих кімнати — лише для перенесення
+export const REQ = `${ID}/req`;        // канал: гравець просить книгу в Майстра
+export const DATA = `${ID}/data`;      // канал: книга шматками від Майстра
 export const ATTACH = `${ID}/attach`;  // id книги на токені
-export const OPEN = `${ID}/open`;      // канал: показати книгу всім
+export const BOOK = `${ID}/book`;      // сама книга на токені — її читають гравці, навіть коли Майстра немає
+export const OPEN = `${ID}/open`;      // канал старої версії: показати книгу всім (книга вже в усіх)
 export const READER = `${ID}/reader`;  // id поповера-читалки
 
 export const STYLES = [

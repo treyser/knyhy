@@ -1,6 +1,7 @@
 import "./style.css";
 import OBR from "@owlbear-rodeo/sdk";
-import { BOOKS, READER } from "./common.js";
+import { READER, ATTACH, BOOK } from "./common.js";
+import { getBooks, askBook, findBook } from "./store.js";
 import { CORNER, ROSE, FOLIO, FOLIO_RIGHT, BRASS_CORNER, CLASP } from "./ornaments.js";
 
 const $ = (id) => document.getElementById(id);
@@ -35,12 +36,20 @@ function say(text) {
 async function init() {
   clearTimeout(failsafe);
 
-  const meta = await OBR.room.getMetadata();
-  book = (meta[BOOKS] ?? {})[bookId];
+  if (!bookId) { say("Книгу не вказано"); return; }
+  book = await findBook(bookId);
 
+  // Копії ще немає — просимо в Майстра й чекаємо, поки фоновий скрипт її збереже
   if (!book) {
-    say(bookId ? "Книги не знайдено" : "Книгу не вказано");
-    return;
+    say("Книга в дорозі…");
+    askBook(bookId);
+    book = await new Promise((resolve) => {
+      const done = (b) => { window.removeEventListener("storage", on); clearTimeout(t); resolve(b); };
+      const on = (e) => { if (e.key === "knyhy.books" && getBooks()[bookId]) done(getBooks()[bookId]); };
+      const t = setTimeout(() => done(getBooks()[bookId] ?? null), 6000);
+      window.addEventListener("storage", on);
+    });
+    if (!book) { say("Книгу не вдалося отримати: Майстра зараз немає в кімнаті."); return; }
   }
 
   document.getElementById("book").dataset.style = book.style ?? "leather";
@@ -58,14 +67,20 @@ async function init() {
     if (e.key === "Escape") OBR.popover.close(READER);
   });
 
-  // якщо Майстер правив книгу, поки вона відкрита
-  OBR.room.onMetadataChange((m) => {
-    const fresh = (m[BOOKS] ?? {})[bookId];
-    if (!fresh) return;
+  // якщо Майстер правив книгу, поки вона відкрита: нова версія приходить на предмет або в копію
+  const refresh = (fresh) => {
+    if (!fresh || JSON.stringify(fresh.pages) === JSON.stringify(book.pages) && fresh.title === book.title && fresh.style === book.style && fresh.font === book.font) return;
     book = fresh;
+    $("title").textContent = book.title ?? "";
+    spread = Math.min(spread, spreads() - 1);
     document.getElementById("book").dataset.font = book.font ?? "print";
     document.getElementById("book").dataset.style = book.style ?? "leather";
     draw();
+  };
+  window.addEventListener("storage", (e) => { if (e.key === "knyhy.books") refresh(getBooks()[bookId]); });
+  OBR.scene.items.onChange((items) => {
+    const item = items.find((i) => i.metadata?.[ATTACH] === bookId && i.metadata?.[BOOK]);
+    if (item) refresh(item.metadata[BOOK]);
   });
 
   draw();
